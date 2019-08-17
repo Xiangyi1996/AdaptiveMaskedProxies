@@ -66,6 +66,7 @@ class pascalVOCLoader(data.Dataset):
         fold=None,
         n_classes=21
     ):
+        self.device = torch.device("cuda")
         self.root = os.path.expanduser(root)
         self.split = split
         self.is_transform = is_transform
@@ -110,14 +111,18 @@ class pascalVOCLoader(data.Dataset):
         return im, lbl
 
     def transform(self, img, lbl):
+        #import ipdb; ipdb.set_trace()
         if self.img_size == ['same', 'same']:
             pass
         elif hasattr(img, 'dtype'):
             img = cv2.resize(img, self.img_size)
             lbl = cv2.resize(lbl, self.img_size, interpolation=cv2.INTER_NEAREST)
         else:
-            img = img.resize((self.img_size[0], self.img_size[1]))  # uint8 with RGB mode
-            lbl = lbl.resize((self.img_size[0], self.img_size[1]))
+            #print(self.img_size)
+            # img = img.resize((self.img_size[0], self.img_size[1]))  # uint8 with RGB mode
+            # lbl = lbl.resize((self.img_size[0], self.img_size[1]))
+            img = img.resize((400, 400))  # uint8 with RGB mode
+            lbl = lbl.resize((400, 400))
 
         img = self.tf(img)
         lbl = torch.from_numpy(np.array(lbl)).long()

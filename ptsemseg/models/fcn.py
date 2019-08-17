@@ -235,7 +235,7 @@ class fcn8s(nn.Module):
 
         return fconv_pooled, conv4_pooled, conv3_pooled
 
-    def imprint(self, images, labels, alpha):
+    def imprint(self, images, labels, alpha): #list(images)
         with torch.no_grad():
             embeddings = None
             for ii, ll in zip(images, labels):
@@ -252,7 +252,7 @@ class fcn8s(nn.Module):
             # Imprint weights for last score layer
             nclasses = self.n_classes
             self.n_classes = 17
-            nchannels = embeddings.shape[2]
+            nchannels = embeddings.shape[2] #1,17,256,1,1
 
             weight = compute_weight(embeddings, nclasses, labels,
                                          self.classifier[2].weight.data, alpha=alpha)

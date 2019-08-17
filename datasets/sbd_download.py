@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--dataset-dir', type=str,
-        default=os.path.join(os.sep, 'mnt', 'datasets', 'public', 'research', 'sbd'),
+        default=os.path.join(os.sep, 'group', 'datasets', 'public', 'research', 'sbd'),
         help='Path to the raw data')
     args = parser.parse_args()
     download_and_uncompress_dataset(args.dataset_dir)

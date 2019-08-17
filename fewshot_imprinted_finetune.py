@@ -12,7 +12,7 @@ import torchvision.models as models
 
 from torch.backends import cudnn
 from torch.utils import data
-
+import shutil
 from tqdm import tqdm
 
 from ptsemseg.models import get_model
@@ -28,6 +28,7 @@ import torch.nn.functional as F
 from ptsemseg.schedulers import get_scheduler
 from ptsemseg.optimizers import get_optimizer
 from ptsemseg.loss import get_loss_function
+import ipdb
 
 #torch.backends.cudnn.benchmark = True
 def save_images(sprt_image, sprt_label, qry_image, iteration, out_dir):
@@ -57,10 +58,10 @@ def post_process(gt, pred):
 
 def validate(cfg, args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    #ipdb.set_trace()
     if args.out_dir != "":
         if not os.path.exists(args.out_dir):
-            os.mkdir(args.out_dir)
+            os.makedirs(args.out_dir)
         if not os.path.exists(args.out_dir+'hmaps_bg'):
             os.mkdir(args.out_dir+'hmaps_bg')
         if not os.path.exists(args.out_dir+'hmaps_fg'):
@@ -112,7 +113,7 @@ def validate(cfg, args):
 
     # Setup Model
     model = get_model(cfg['model'], n_classes).to(device)
-    state = convert_state_dict(torch.load(args.model_path)["model_state"])
+    state = convert_state_dict(torch.load(args.model_path)["model_state"])#load checkpoint
     model.load_state_dict(state)
     model.to(device)
     model.freeze_all_except_classifiers()
@@ -128,6 +129,9 @@ def validate(cfg, args):
     alpha = 0.14139
     for i, (sprt_images, sprt_labels, qry_images, qry_labels,
             original_sprt_images, original_qry_images, cls_ind) in enumerate(valloader):
+
+
+
 
         cls_ind = int(cls_ind)
         print('Starting iteration ', i)
@@ -179,7 +183,9 @@ def validate(cfg, args):
         gt = qry_labels.numpy()
         if args.binary:
             gt,pred = post_process(gt, pred)
-
+        # 0: evaluates on 17 classes (15 classes previously trained+Bg+New class),
+        # 1: evaluate binary with OSLSM method,
+        # 2: evaluates binary using coFCN method.
         if args.binary:
             if args.binary == 1:
                 tp, fp, fn = running_metrics.update_binary_oslsm(gt, pred)
@@ -289,5 +295,6 @@ if __name__ == "__main__":
 
     with open(args.config) as fp:
         cfg = yaml.load(fp)
-
+    logdir = os.path.join(args.out_dir)
+    shutil.copy(args.config, logdir)
     validate(cfg, args)

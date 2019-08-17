@@ -5,12 +5,69 @@ import cv2
 import matplotlib.pyplot as plt
 from PIL import Image
 
-main_dir = sys.argv[1]
-plt.figure(1); plt.figure(2); # Img overlay Gt, Pred
-plt.figure(3);plt.figure(4); # Heatmaps
-plt.figure(5); # Sprt Img overlay GT
-plt.ion()
-plt.show()
+
+frame = 'Ourmodel'
+shot = 'oneShot'
+
+#main_dir = os.path.join('/p300/AdaptiveMaskedProxies/Output/', frame, 'dilated_fcn_fold0/')
+
+main_dir = os.path.join('/p300/AdaptiveMaskedProxies/Output/', frame, shot, 'dilated_fcn_fold0/')
+
+# plt.figure(1); plt.figure(2); # Img overlay Gt, Pred
+# plt.figure(3);plt.figure(4); # Heatmaps
+# plt.figure(5); # Sprt Img overlay GT
+# plt.ion()
+# plt.show()
+
+def make_dir(DIR):
+    if not os.path.exists(DIR):
+        os.makedirs(DIR)
+
+def vis_ada(overlay_qry_gt, overlay_qry_pred, hmaps_bg, hmaps_fg, overlay_sprt, img, file):
+
+    plt.axis('off')
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    #plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+    #plt.margins(0, 0)
+
+    plt.subplot(2, 2, 1)
+    plt.title('support_img')
+    plt.imshow(overlay_sprt)
+    plt.axis('off')
+
+    plt.subplot(2, 2, 2)
+    plt.title('query_img')
+    plt.imshow(overlay_qry_gt)
+    plt.axis('off')
+
+    plt.subplot(2, 2, 3)
+    plt.title('query_pred')
+    plt.imshow(overlay_qry_pred)
+    plt.axis('off')
+
+    # plt.subplot(2, 3, 4)
+    # plt.title('hmaps_bg')
+    # plt.imshow(hmaps_bg)
+    # plt.axis('off')
+    #
+    # plt.subplot(2, 3, 5)
+    # plt.title('hmaps_fg')
+    # plt.imshow(hmaps_fg)
+    # plt.axis('off')
+
+    plt.subplot(2, 2, 4)
+    plt.title('qry_img')
+    plt.imshow(img)
+    plt.axis('off')
+
+
+    saveRoot = os.path.join(main_dir, 'vis')
+
+    make_dir(saveRoot)
+    #print('*' * 30, saveRoot, '*' * 30)
+
+    plt.savefig(os.path.join(saveRoot, file), dpi = 200)
 
 def PIL2array(img):
     return np.array(img.getdata(), np.uint8).reshape(img.size[1], img.size[0], 4)
@@ -58,10 +115,16 @@ for f in sorted(os.listdir(main_dir+'gt/')):
     sprt_gt[sprt_gt==16]=255
     overlay_sprt= create_overlay(sprt_img, sprt_gt, [0,255])
 
-    plt.figure(1); plt.imshow(overlay_qry_gt); plt.figure(2); plt.imshow(overlay_qry_pred);
-    plt.figure(3); plt.imshow(hmaps_bg); plt.figure(4); plt.imshow(hmaps_fg)
-    plt.figure(5); plt.imshow(overlay_sprt);
+    # plt.figure(1); plt.imshow(overlay_qry_gt); plt.figure(2); plt.imshow(overlay_qry_pred);
+    # plt.figure(3); plt.imshow(hmaps_bg); plt.figure(4); plt.imshow(hmaps_fg)
+    # plt.figure(5); plt.imshow(overlay_sprt);
 
-    plt.draw()
-    plt.waitforbuttonpress(0)
+    #vis_list = [overlay_qry_gt, overlay_qry_pred, hmaps_bg, hmaps_fg, overlay_sprt]
+    vis_ada(overlay_qry_gt, overlay_qry_pred, hmaps_bg, hmaps_fg, overlay_sprt, img, f)
+
+
+
+
+    #plt.draw()
+    #plt.waitforbuttonpress(0)
 

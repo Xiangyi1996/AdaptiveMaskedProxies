@@ -7,17 +7,17 @@ from scipy import ndimage
 
 def label_exist(labels, cls_ind):
     for l in labels:
-        if len(l[l==cls_ind].nonzero()) != 0:
+        if len(l[l==cls_ind].nonzero()) != 0: #non zero is not 0 = has non zero
             return True
     return False
 
 def compute_weight(embeddings, nclasses, labels, original_weight, alpha):
-    imp_weight = embeddings.mean(0).squeeze()
+    imp_weight = embeddings.mean(0).squeeze() #17,256
 
     # Add imprinted weights for -ve samples that occurred in support image
     for c in range(nclasses):
         if label_exist(labels, c) or c==0:
-            temp = original_weight[c, ...].squeeze()
+            temp = original_weight[c, ...].squeeze() #16,256,1,1
             temp = (1-alpha)*temp + alpha*imp_weight[c].cuda()
             temp = temp / temp.norm(p=2)
             original_weight[c, ...] = temp.unsqueeze(1).unsqueeze(1)
@@ -29,18 +29,19 @@ def compute_weight(embeddings, nclasses, labels, original_weight, alpha):
     return weight
 
 
-def masked_embeddings(fmap_shape, label, fconv_norm, n_classes):
-    label = label.unsqueeze(0).unsqueeze(0)
+def masked_embeddings(fmap_shape, label, fconv_norm, n_classes):#fmap_shape: 1,256,63,63; fconv_norm: output of fcn
+    label = label.unsqueeze(0).unsqueeze(0) #500,500 -> 1,1,500,500
     fconv_norm = nn.functional.interpolate(fconv_norm,
                                       size=(int(label.shape[2]), int(label.shape[3])),
                                       mode='nearest')
-    fconv_pooled = torch.zeros(fmap_shape[0], n_classes+1, fmap_shape[1], 1, 1).cuda()
-    for c in range(n_classes+1):
-        mask = torch.zeros(label[0].shape).cuda()
-        mask[label[0]==c] = 1
-        temp = fconv_norm * mask
+    fconv_pooled = torch.zeros(fmap_shape[0], n_classes+1, fmap_shape[1], 1, 1).cuda() #1,17,256,1,1
+    #import ipdb;ipdb.set_trace()
+    for c in range(n_classes+1): #0-16
+        mask = torch.zeros(label[0].shape).cuda() # label[0].shape:1,500,500
+        mask[label[0]==c] = 1 #mask = 1 where label = 0
+        temp = fconv_norm * mask  #keep the area where label == 1
         if mask.max() == 1:
-            fconv_pooled[:, c, :, 0, 0] = temp.sum(2).sum(2) / (mask==1).sum(1).sum(1).float()
+            fconv_pooled[:, c, :, 0, 0] = temp.sum(2).sum(2) / (mask==1).sum(1).sum(1).float() #1,256/1
     return fconv_pooled
 
 def weighted_masked_embeddings(fmap_shape, label, fconv_norm, n_classes):

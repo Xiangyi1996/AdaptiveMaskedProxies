@@ -1,5 +1,5 @@
-import os
 import sys
+import os
 import yaml
 import time
 import shutil
@@ -134,6 +134,8 @@ def train(cfg, writer, logger):
     i = start_iter
     flag = True
 
+    torch.cuda.synchronize()
+
     while i <= cfg['training']['train_iters'] and flag:
         for (images, labels) in trainloader:
 #            import matplotlib.pyplot as plt
@@ -239,6 +241,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
 
     with open(args.config) as fp:
         cfg = yaml.load(fp)

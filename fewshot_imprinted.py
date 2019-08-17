@@ -57,7 +57,9 @@ def validate(cfg, args):
 
     if args.out_dir != "":
         if not os.path.exists(args.out_dir):
-            os.mkdir(args.out_dir)
+            os.makedirs(args.out_dir)
+        # if not os.path.exists(args.out_dir):
+        #     os.mkdir(args.out_dir)
         if not os.path.exists(args.out_dir+'hmaps_bg'):
             os.mkdir(args.out_dir+'hmaps_bg')
         if not os.path.exists(args.out_dir+'hmaps_fg'):

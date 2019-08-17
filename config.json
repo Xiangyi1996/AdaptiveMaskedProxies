@@ -1,6 +1,6 @@
 {
       "sbd":
       {
-          "data_path" : "/home/menna/Datasets/SBD/"
+          "data_path" : "/group/xiangyi/Pascal/SBD/benchmark_RELEASE/"
       }
 }
