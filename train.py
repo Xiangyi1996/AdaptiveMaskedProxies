@@ -136,6 +136,7 @@ def train(cfg, writer, logger):
 
     torch.cuda.synchronize()
 
+    logger.info("Start training from here!!!!!")
     while i <= cfg['training']['train_iters'] and flag:
         for (images, labels) in trainloader:
 #            import matplotlib.pyplot as plt
@@ -169,6 +170,8 @@ def train(cfg, writer, logger):
                 writer.add_scalar('loss/train_loss', loss.item(), i+1)
                 time_meter.reset()
 
+
+            logger.info("Start validation from here!!!!!")
             if (i + 1) % cfg['training']['val_interval'] == 0 or \
                (i + 1) == cfg['training']['train_iters']:
                 model.eval()

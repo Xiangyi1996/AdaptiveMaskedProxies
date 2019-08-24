@@ -6,7 +6,7 @@ model:
     offsetting: False
     use_scale: False
 data:
-    dataset: pascal
+    dataset: pascal5i
     fold: 0
     n_classes: 16
     train_split: train_aug
